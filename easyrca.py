@@ -12,6 +12,10 @@ from estimation import FisherZ, grubb_test, LinearRegression
 class EasyRCA:
     def __init__(self, summary_graph, anomalous_nodes, anomalies_start_time=None, anomaly_length=200, gamma_max=1,
                  sig_threshold=0.05):
+        # TODO add a parameter distinguish_anomaly_type which chooses between one of the strategies for when to distinguish between structural and parametric:
+        # always, except_subroots, except_time_defying, except_subroots_and_time_defying, never.
+        # In some cases (probably all but "never"), every direct effect should be estimated so that an intervention which is structural *and* parametric is counted as structural.
+        # This might be implemented as a level of confidence of each type of root cause (subroot, time defying, structural, parametric) so that EasyRCA tries to find the ones with the most confidence first.
         """
         :param summary_graph: networkx graph
         :param anomalous_nodes: list
