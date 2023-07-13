@@ -2,6 +2,9 @@ import time
 import sys
 
 from pathlib import Path # if you haven't already done so
+
+import matplotlib.pyplot as plt
+
 file = Path(__file__).resolve()
 parent, root = file.parent, file.parents[1]
 sys.path.append(str(root))
@@ -53,23 +56,32 @@ if __name__ == '__main__':
     nb_anomalous_data = anomaly_end - anomaly_start + 1
     print(nb_anomalous_data)
 
-    dataFrame = pd.DataFrame()
-    pathNameData = str(parent) + "/monitoring_data/real_data_for_causality_relabel_v2/"
 
-    list_nodes = []
-    for id_metric in list_id_metric:
-        fileName = pathNameData + id_metric + '.json'
-        fileNameCsv = pathNameData + id_metric + '.csv'
-        df = pd.read_csv(fileNameCsv, sep=',', header=0)
-        del df['timestamp']
-        nodeName = map_id_to_name[id_metric]
-        list_nodes.append(nodeName)
-        df = df.rename(columns={'value': nodeName})
-        dataFrame = dataFrame.join(df[nodeName], how='outer')
+    # OLD VERSION
+    ########################################
+    # dataFrame = pd.DataFrame()
+    # pathNameData = str(parent) + "/monitoring_data/real_data_for_causality_relabel_v2/"
+    # list_nodes = []
+    # for id_metric in list_id_metric:
+    #     fileName = pathNameData + id_metric + '.json'
+    #     fileNameCsv = pathNameData + id_metric + '.csv'
+    #     df = pd.read_csv(fileNameCsv, sep=',', header=0)
+    #     del df['timestamp']
+    #     nodeName = map_id_to_name[id_metric]
+    #     list_nodes.append(nodeName)
+    #     df = df.rename(columns={'value': nodeName})
+    #     dataFrame = dataFrame.join(df[nodeName], how='outer')
+    # data = dataFrame.loc[45683:50000]
+    # data.to_csv("./monitoring_data/data_with_incident_between_46683_and_46783.csv", sep=";")
+    ########################################
 
-    data = dataFrame.loc[45683:50000]
+    # New VERSION
+    ########################################
+    data = pd.read_csv("./monitoring_data/data_with_incident_between_46683_and_46783.csv", sep=';', header=0, index_col=0)
+    list_nodes = list(data.columns)
+    ########################################
+
     print(data)
-
     # import graph
     graph = nx.DiGraph()
     graph.add_nodes_from(list_nodes)
@@ -111,6 +123,12 @@ if __name__ == '__main__':
         from easyrca import remove_self_loops
 
         data_normal = data.loc[:anomaly_start - 10]
+
+        # print(data_normal)
+        # data_normal.to_csv("./monitoring_data/storm.csv")
+        # plt.plot(data_normal)
+        # plt.show()
+
         dataframe = pp.DataFrame(data_normal.values,
                                  datatime=np.arange(len(data_normal)),
                                  var_names=data_normal.columns)
