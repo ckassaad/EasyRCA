@@ -38,7 +38,7 @@ if __name__ == '__main__':
         gamma_max = int(sys.argv[3])
     else:
         method = "EasyRCA"  # EasyRCA or EasyRCA* or MicroCause or CloudRanger or WhyMDC
-        nb_anomalous_data = 1000
+        nb_anomalous_data = 2000
         gamma_max = 3
 
     nb_data = 12 * nb_anomalous_data

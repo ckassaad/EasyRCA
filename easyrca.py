@@ -5,7 +5,7 @@ Coded by Charles Assaad, Imad Ez-Zejjari and Lei Zan
 import networkx as nx
 import pandas as pd
 import numpy as np
-from identification import remove_self_loops, backdoor_from_summary_graph, singledoor_from_summary_graph
+from identification import remove_self_loops, backdoor_from_summary_graph, singledoor_from_summary_graph, adjutment_set_for_direct_effect_in_ascgl
 from estimation import FisherZ, grubb_test, LinearRegression
 
 
@@ -266,17 +266,22 @@ class EasyRCA:
 
             if y in self.root_causes[subgraph_id]["param_defying"]:
                 if y not in all_root_causes_except_param:
-                    cond_dict, _ = backdoor_from_summary_graph(self.summary_graph, x, y, gamma_max=self.gamma_max,
-                                                           gamma_min_dict=self.gamma_min_dict,
-                                                           xy_d_sep_by_empty_in_manip_graph=
-                                                           self.d_sep_by_empty_in_manip_graph[edge])
-                    cond_dict2, _ = singledoor_from_summary_graph(self.summary_graph, x, y, gamma_max=self.gamma_max,
-                                                                  gamma_min_dict=self.gamma_min_dict,
-                                                                  xy_d_sep_by_empty_in_manip_graph=
-                                                                  self.d_sep_by_empty_in_manip_graph[edge])
+                    # cond_dict, _ = backdoor_from_summary_graph(self.summary_graph, x, y, gamma_max=self.gamma_max,
+                    #                                        gamma_min_dict=self.gamma_min_dict,
+                    #                                        xy_d_sep_by_empty_in_manip_graph=
+                    #                                        self.d_sep_by_empty_in_manip_graph[edge])
+                    # cond_dict2, _ = singledoor_from_summary_graph(self.summary_graph, x, y, gamma_max=self.gamma_max,
+                    #                                               gamma_min_dict=self.gamma_min_dict,
+                    #                                               xy_d_sep_by_empty_in_manip_graph=
+                    #                                               self.d_sep_by_empty_in_manip_graph[edge])
+
+                    cond_dict, _ = adjutment_set_for_direct_effect_in_ascgl(self.summary_graph, x, y,
+                                                                            gamma_max=self.gamma_max,
+                                                                            gamma_min_dict=self.gamma_min_dict)
+
                     for gamma in cond_dict.keys():
-                        # cond_set = cond_dict[gamma]
-                        cond_set = cond_dict[gamma] + cond_dict2[gamma]
+                        cond_set = cond_dict[gamma]
+                        # cond_set = cond_dict[gamma] + cond_dict2[gamma]
                         yt = self.nodes_to_temporal_nodes[y][0]
                         xt = self.nodes_to_temporal_nodes[x][gamma]
                         ci = LinearRegression(xt, yt, cond_set)
@@ -309,17 +314,21 @@ class EasyRCA:
                                            self.root_causes[subgraph_id]["structure_defying"] + \
                                            self.root_causes[subgraph_id]["param_defying"]
             if y not in all_root_causes_except_param:
-                cond_dict, _ = backdoor_from_summary_graph(self.summary_graph, x, y, gamma_max=self.gamma_max,
-                                                        gamma_min_dict=self.gamma_min_dict,
-                                                        xy_d_sep_by_empty_in_manip_graph=
-                                                        self.d_sep_by_empty_in_manip_graph[edge])
-                cond_dict2, _ = singledoor_from_summary_graph(self.summary_graph, x, y, gamma_max=self.gamma_max,
-                                                        gamma_min_dict=self.gamma_min_dict,
-                                                        xy_d_sep_by_empty_in_manip_graph=
-                                                        self.d_sep_by_empty_in_manip_graph[edge])
+                # cond_dict, _ = backdoor_from_summary_graph(self.summary_graph, x, y, gamma_max=self.gamma_max,
+                #                                         gamma_min_dict=self.gamma_min_dict,
+                #                                         xy_d_sep_by_empty_in_manip_graph=
+                #                                         self.d_sep_by_empty_in_manip_graph[edge])
+                # cond_dict2, _ = singledoor_from_summary_graph(self.summary_graph, x, y, gamma_max=self.gamma_max,
+                #                                         gamma_min_dict=self.gamma_min_dict,
+                #                                         xy_d_sep_by_empty_in_manip_graph=
+                #                                         self.d_sep_by_empty_in_manip_graph[edge])
+
+                cond_dict, _ = adjutment_set_for_direct_effect_in_ascgl(self.summary_graph, x, y,
+                                                                         gamma_max=self.gamma_max,
+                                                                         gamma_min_dict=self.gamma_min_dict)
                 for gamma in cond_dict.keys():
-                    # cond_set = cond_dict[gamma]
-                    cond_set = cond_dict[gamma] + cond_dict2[gamma]
+                    cond_set = cond_dict[gamma]
+                    # cond_set = cond_dict[gamma] + cond_dict2[gamma]
                     # gamma = self.gamma_min_dict[edge]
                     yt = self.nodes_to_temporal_nodes[y][0]
                     xt = self.nodes_to_temporal_nodes[x][gamma]
