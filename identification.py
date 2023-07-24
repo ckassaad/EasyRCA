@@ -41,7 +41,7 @@ def adjutment_set_for_direct_effect_in_ascgl(ascgl, x, y, gamma_max=1, gamma_min
                 min_gamma_bx = gamma_min_dict[(b, x)]
                 for gamma in list(range(gamma_xy + min_gamma_bx, gamma_xy + gamma_max + 1)):
                     bt = str(b) + "_t"
-                    if gamma > gamma_xy:
+                    if gamma > 0:
                         bt = bt + "_" + str(gamma)
                     par_x_temporal_dict[gamma_xy].append(bt)
 

@@ -1,5 +1,5 @@
 """
-Coded by Charles Assaad, Imad Ez-Zejjari and Lei Zan
+Coded by Charles Assaad, Simon Ferreira Imad Ez-Zejjari and Lei Zan
 """
 
 import networkx as nx
