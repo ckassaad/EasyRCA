@@ -5,8 +5,8 @@ Coded by Charles Assaad, Simon Ferreira Imad Ez-Zejjari and Lei Zan
 import networkx as nx
 import pandas as pd
 import numpy as np
-from identification import remove_self_loops, backdoor_from_summary_graph, singledoor_from_summary_graph, adjutment_set_for_direct_effect_in_ascgl
-from estimation import FisherZ, grubb_test, LinearRegression
+from identification import remove_self_loops, adjutment_set_for_direct_effect_in_ascgl_using_parentsY
+from estimation import grubb_test, LinearRegression
 
 
 class EasyRCA:
@@ -219,37 +219,6 @@ class EasyRCA:
 
         return normal_data, anomalous_data
 
-    def _search_structure_defiance(self, subgraph_id, normal_data, anomalous_data):
-        """
-        Search for structre defying nodes
-        :param subgraph_id: the id of linked anomalous graph
-        :param data:
-        :return: Void
-        """
-        linked_anomalous_graph = self.dict_linked_anomalous_graph[subgraph_id]
-        dag = remove_self_loops(linked_anomalous_graph)
-        for edge in dag.edges:
-            x = edge[0]
-            y = edge[1]
-            all_root_causes = self.root_causes[subgraph_id]["roots"] + \
-                              self.root_causes[subgraph_id]["time_defying"] + \
-                              self.root_causes[subgraph_id]["structure_defying"]
-            if y not in all_root_causes:
-                cond_dict, _ = backdoor_from_summary_graph(self.summary_graph, x, y, gamma_max=self.gamma_max,
-                                                       gamma_min_dict=self.gamma_min_dict,
-                                                       xy_d_sep_by_empty_in_manip_graph=
-                                                       self.d_sep_by_empty_in_manip_graph[edge])
-                for gamma in cond_dict.keys():
-                    cond_set = cond_dict[gamma]
-                    # gamma = self.gamma_min_dict[edge]
-                    yt = self.nodes_to_temporal_nodes[y][0]
-                    xt = self.nodes_to_temporal_nodes[x][gamma]
-                    ci = FisherZ(xt, yt, cond_set)
-                    pval_normal, _ = ci.get_pvalue(normal_data)
-                    pval_anomalous, _ = ci.get_pvalue(anomalous_data)
-                    if (pval_anomalous >= self.sig_threshold) and (pval_normal < self.sig_threshold):
-                        if y not in self.root_causes[subgraph_id]["structure_defying"]:
-                            self.root_causes[subgraph_id]["structure_defying"].append(y)
 
     def _search_structure_defiance_after_param(self, subgraph_id, normal_data, anomalous_data):
         """
@@ -279,10 +248,9 @@ class EasyRCA:
                     #                                               xy_d_sep_by_empty_in_manip_graph=
                     #                                               self.d_sep_by_empty_in_manip_graph[edge])
 
-                    cond_dict, _ = adjutment_set_for_direct_effect_in_ascgl(self.summary_graph, x, y,
+                    cond_dict, _ = adjutment_set_for_direct_effect_in_ascgl_using_parentsY(self.summary_graph, x, y,
                                                                             gamma_max=self.gamma_max,
                                                                             gamma_min_dict=self.gamma_min_dict)
-
                     for gamma in cond_dict.keys():
                         cond_set = cond_dict[gamma]
                         # cond_set = cond_dict[gamma] + cond_dict2[gamma]
@@ -327,9 +295,11 @@ class EasyRCA:
                 #                                         xy_d_sep_by_empty_in_manip_graph=
                 #                                         self.d_sep_by_empty_in_manip_graph[edge])
 
-                cond_dict, _ = adjutment_set_for_direct_effect_in_ascgl(self.summary_graph, x, y,
+                cond_dict, _ = adjutment_set_for_direct_effect_in_ascgl_using_parentsY(self.summary_graph, x, y,
                                                                          gamma_max=self.gamma_max,
                                                                          gamma_min_dict=self.gamma_min_dict)
+                # print("Cond dict", x, y)
+                # print(cond_dict)
                 for gamma in cond_dict.keys():
                     cond_set = cond_dict[gamma]
                     # cond_set = cond_dict[gamma] + cond_dict2[gamma]

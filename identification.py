@@ -19,7 +19,61 @@ def remove_self_loops(sg):
     return dag
 
 
-def adjutment_set_for_direct_effect_in_ascgl(ascgl, x, y, gamma_max=1, gamma_min_dict=None):
+def adjutment_set_for_direct_effect_in_ascgl_using_parentsY(ascgl, x, y, gamma_max=1, gamma_min_dict=None):
+    dag = remove_self_loops(ascgl)
+    temporal_adjutment_set_for_each_gamma_xy = dict()
+    adjutment_set = []
+    if x in dag.predecessors(y):
+        g_manip = dag.copy()
+        g_manip.remove_edge(x, y)
+        par_y = list(g_manip.predecessors(y))
+        par_x = list(g_manip.predecessors(x))
+        adjutment_set = par_x + par_y
+
+        # get temporal vertices
+        gamma_min_xy = gamma_min_dict[(x, y)]
+        par_y_temporal_dict = dict()
+        par_x_temporal_dict = dict()
+        for gamma_xy in range(gamma_min_xy, gamma_max + 1):
+            par_y_temporal_dict[gamma_xy] = []
+            par_x_temporal_dict[gamma_xy] = []
+            # for b in par_x:
+            #     min_gamma_bx = gamma_min_dict[(b, x)]
+            #     for gamma in list(range(gamma_xy + min_gamma_bx, gamma_xy + gamma_max + 1)):
+            #         bt = str(b) + "_t"
+            #         if gamma > 0:
+            #             bt = bt + "_" + str(gamma)
+            #         par_x_temporal_dict[gamma_xy].append(bt)
+
+            for s in par_y:
+                min_gamma_sy = gamma_min_dict[(s, y)]
+                for gamma in list(range(min_gamma_sy, gamma_max + 1)):
+                    st = str(s) + "_t"
+                    if gamma > 0:
+                        st = st + "_" + str(gamma)
+                    par_y_temporal_dict[gamma_xy].append(st)
+
+            if ((x, x) in ascgl.edges) and ((y, y) in ascgl.edges):
+                for gamma in list(range(1, gamma_max + 1)):
+                    st = str(y) + "_t_" + str(gamma)
+                    par_y_temporal_dict[gamma_xy].append(st)
+
+                for gamma in list(range(gamma_min_xy, gamma_xy)):
+                    st = str(x) + "_t"
+                    if gamma > 0:
+                        st = str(x) + "_t_" + str(gamma)
+                    par_y_temporal_dict[gamma_xy].append(st)
+
+                for gamma in list(range(gamma_xy + 1, gamma_xy + gamma_max + 1)):
+                    bt = str(x) + "_t_" + str(gamma)
+                    par_x_temporal_dict[gamma_xy].append(bt)
+
+            temporal_adjutment_set_for_each_gamma_xy[gamma_xy] = par_x_temporal_dict[gamma_xy] + par_y_temporal_dict[gamma_xy]
+
+    return temporal_adjutment_set_for_each_gamma_xy, adjutment_set
+
+
+def adjutment_set_for_direct_effect_in_ascgl_using_parentsXY(ascgl, x, y, gamma_max=1, gamma_min_dict=None):
     dag = remove_self_loops(ascgl)
     temporal_adjutment_set_for_each_gamma_xy = dict()
     adjutment_set = []

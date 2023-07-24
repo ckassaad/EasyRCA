@@ -97,7 +97,7 @@ if __name__ == '__main__':
             graph.add_edge(node, node)
 
         ####################
-        # draw_graph(graph)
+        draw_graph(graph)
         # print(graph.edges)
         # print(intervention)
         # print(anomalies_start_time)
